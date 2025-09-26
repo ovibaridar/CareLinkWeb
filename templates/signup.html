@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - CareLink{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <div class="mx-auto h-12 w-12 flex items-center justify-center">
+                <i class="fas fa-heart text-carelink-blue text-3xl"></i>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Create your account
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Or
+                <a href="{% url 'login' %}" class="font-medium text-carelink-blue hover:text-blue-500">
+                    sign in to your existing account
+                </a>
+            </p>
+        </div>
+        
+        <form class="mt-8 space-y-6" method="post">
+            {% csrf_token %}
+            
+            <!-- Role Selection -->
+            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                <label class="text-sm font-medium text-gray-700 mb-3 block">I am a:</label>
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <input id="role_customer" name="role" type="radio" value="customer" required
+                               class="h-4 w-4 text-carelink-blue focus:ring-carelink-blue border-gray-300">
+                        <label for="role_customer" class="ml-3 block text-sm font-medium text-gray-700">
+                            <i class="fas fa-user mr-2"></i>Customer - Looking for care services
+                        </label>
+                    </div>
+                    <div class="flex items-center">
+                        <input id="role_provider" name="role" type="radio" value="provider" required
+                               class="h-4 w-4 text-carelink-blue focus:ring-carelink-blue border-gray-300">
+                        <label for="role_provider" class="ml-3 block text-sm font-medium text-gray-700">
+                            <i class="fas fa-briefcase mr-2"></i>Provider - Offering care services
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input id="first_name" name="first_name" type="text" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                               placeholder="First name">
+                    </div>
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input id="last_name" name="last_name" type="text" required
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                               placeholder="Last name">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input id="username" name="username" type="text" required
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                           placeholder="Choose a username">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input id="email" name="email" type="email" required
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                           placeholder="your@email.com">
+                </div>
+
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number (Optional)</label>
+                    <input id="phone_number" name="phone_number" type="tel"
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                           placeholder="+1 (555) 123-4567">
+                </div>
+
+                <div>
+                    <label for="password1" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input id="password1" name="password1" type="password" required
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                           placeholder="Create a password">
+                </div>
+
+                <div>
+                    <label for="password2" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <input id="password2" name="password2" type="password" required
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue sm:text-sm"
+                           placeholder="Confirm your password">
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <input id="terms" name="terms" type="checkbox" required
+                       class="h-4 w-4 text-carelink-blue focus:ring-carelink-blue border-gray-300 rounded">
+                <label for="terms" class="ml-2 block text-sm text-gray-900">
+                    I agree to the 
+                    <a href="#" class="text-carelink-blue hover:text-blue-500">Terms of Service</a>
+                    and 
+                    <a href="#" class="text-carelink-blue hover:text-blue-500">Privacy Policy</a>
+                </label>
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-carelink-blue hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-carelink-blue">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-user-plus text-carelink-blue group-hover:text-blue-500" aria-hidden="true"></i>
+                    </span>
+                    Create Account
+                </button>
+            </div>
+        </form>
+    
+    </div>
+</div>
+
+<script>
+// Real-time password validation
+document.getElementById('password2').addEventListener('input', function() {
+    const password1 = document.getElementById('password1').value;
+    const password2 = this.value;
+    
+    if (password1 !== password2) {
+        this.setCustomValidity('Passwords do not match');
+        this.style.borderColor = '#ef4444';
+    } else {
+        this.setCustomValidity('');
+        this.style.borderColor = '#d1d5db';
+    }
+});
+
+// Role selection styling
+document.querySelectorAll('input[name="role"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('input[name="role"]').forEach(r => {
+            r.closest('.flex').classList.remove('bg-blue-50', 'border-blue-300');
+        });
+        if (this.checked) {
+            this.closest('.flex').classList.add('bg-blue-50', 'border-blue-300');
+        }
+    });
+});
+</script>
+{% endblock %}

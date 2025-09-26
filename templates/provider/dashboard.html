@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+
+{% block title %}Provider Dashboard - CareLink{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Welcome Section -->
+    <div class="bg-gradient-to-r from-carelink-green to-carelink-blue text-white rounded-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">
+                    Welcome back, {{ provider.user.first_name|default:provider.user.username }}!
+                </h1>
+                <p class="text-green-100 text-lg">
+                    Manage your care services and bookings
+                </p>
+            </div>
+            <div class="hidden md:block">
+                <i class="fas fa-briefcase text-6xl text-green-200"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-carelink-blue">
+            <div class="flex items-center">
+                <div class="bg-carelink-blue bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-calendar-check text-carelink-blue text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ upcoming_bookings|length }}</h3>
+                    <p class="text-gray-600 text-sm">Upcoming Bookings</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-carelink-green">
+            <div class="flex items-center">
+                <div class="bg-carelink-green bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-dollar-sign text-carelink-green text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">${{ total_earnings|floatformat:0 }}</h3>
+                    <p class="text-gray-600 text-sm">Total Earnings</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-carelink-orange">
+            <div class="flex items-center">
+                <div class="bg-carelink-orange bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-star text-carelink-orange text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">4.8</h3>
+                    <p class="text-gray-600 text-sm">Average Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+            <div class="flex items-center">
+                <div class="bg-purple-500 bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-users text-purple-500 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">{{ provider.bookings.count }}</h3>
+                    <p class="text-gray-600 text-sm">Total Clients</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <a href="{% url 'provider_calendar' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 border-l-4 border-carelink-blue">
+            <div class="flex items-center">
+                <div class="bg-carelink-blue bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-calendar text-carelink-blue text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Manage Calendar</h3>
+                    <p class="text-gray-600 text-sm">Update availability</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'profile_edit' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 border-l-4 border-carelink-green">
+            <div class="flex items-center">
+                <div class="bg-carelink-green bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-user-edit text-carelink-green text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Edit Profile</h3>
+                    <p class="text-gray-600 text-sm">Update your information</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'booking_history' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300 border-l-4 border-carelink-orange">
+            <div class="flex items-center">
+                <div class="bg-carelink-orange bg-opacity-10 p-3 rounded-full mr-4">
+                    <i class="fas fa-history text-carelink-orange text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Booking History</h3>
+                    <p class="text-gray-600 text-sm">View all bookings</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Upcoming Bookings -->
+    <div class="bg-white rounded-lg shadow-md mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-calendar-alt text-carelink-blue mr-2"></i>
+                Upcoming Bookings
+            </h2>
+        </div>
+        
+        <div class="p-6">
+            {% if upcoming_bookings %}
+                <div class="space-y-4">
+                    {% for booking in upcoming_bookings %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-2">
+                                        <h3 class="text-lg font-medium text-gray-900">
+                                            {{ booking.service.name }}
+                                        </h3>
+                                        <span class="ml-3 px-2 py-1 text-xs font-medium rounded-full
+                                            {% if booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                            {% elif booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                            {% elif booking.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                            {% endif %}">
+                                            {{ booking.get_status_display }}
+                                        </span>
+                                    </div>
+                                    <p class="text-gray-600 mb-1">
+                                        <i class="fas fa-user mr-1"></i>
+                                        {{ booking.customer.user.get_full_name|default:booking.customer.user.username }}
+                                    </p>
+                                    <p class="text-gray-600 mb-1">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        {{ booking.booking_date|date:"F j, Y" }} at {{ booking.start_time|time:"g:i A" }}
+                                    </p>
+                                    <p class="text-gray-600">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        {{ booking.duration_hours }} hour{{ booking.duration_hours|pluralize }}
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-semibold text-gray-900">
+                                        ${{ booking.total_cost }}
+                                    </p>
+                                    {% if booking.special_requests %}
+                                        <p class="text-sm text-gray-500 mt-1">
+                                            <i class="fas fa-sticky-note mr-1"></i>
+                                            Special requests
+                                        </p>
+                                    {% endif %}
+                                    <div class="mt-2 space-x-2">
+                                        {% if booking.status == 'pending' %}
+                                            <button class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
+                                                Accept
+                                            </button>
+                                            <button class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600">
+                                                Decline
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="{% url 'booking_history' %}" class="text-carelink-blue hover:text-blue-700 font-medium">
+                        View all bookings <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-calendar-times text-gray-400 text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No upcoming bookings</h3>
+                    <p class="text-gray-600 mb-4">Update your profile and availability to get more bookings</p>
+                    <div class="space-x-4">
+                        <a href="{% url 'profile_edit' %}" class="bg-carelink-blue text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+                            <i class="fas fa-user-edit mr-2"></i>Update Profile
+                        </a>
+                        <a href="{% url 'provider_calendar' %}" class="bg-carelink-green text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                            <i class="fas fa-calendar mr-2"></i>Set Availability
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Earnings and Performance -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Monthly Earnings -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-line text-carelink-green mr-2"></i>
+                Monthly Earnings
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">This Month</span>
+                    <span class="font-semibold text-gray-900">${{ monthly_earnings|floatformat:2 }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Last Month</span>
+                    <span class="font-semibold text-gray-900">$1,250.00</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Average per Booking</span>
+                    <span class="font-semibold text-gray-900">${{ provider.hourly_rate }}</span>
+                </div>
+            </div>
+            
+            <!-- Simple chart representation -->
+            <div class="mt-6">
+                <div class="flex items-end space-x-2 h-20">
+                    <div class="bg-carelink-blue bg-opacity-20 flex-1 rounded-t" style="height: 60%"></div>
+                    <div class="bg-carelink-blue bg-opacity-40 flex-1 rounded-t" style="height: 80%"></div>
+                    <div class="bg-carelink-blue bg-opacity-60 flex-1 rounded-t" style="height: 100%"></div>
+                    <div class="bg-carelink-blue flex-1 rounded-t" style="height: 70%"></div>
+                </div>
+                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>Week 1</span>
+                    <span>Week 2</span>
+                    <span>Week 3</span>
+                    <span>Week 4</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-star text-carelink-orange mr-2"></i>
+                Performance Metrics
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Response Rate</span>
+                    <span class="font-semibold text-green-600">98%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Completion Rate</span>
+                    <span class="font-semibold text-green-600">100%</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Customer Rating</span>
+                    <div class="flex items-center">
+                        <div class="flex text-yellow-500 mr-2">
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                        </div>
+                        <span class="font-semibold text-gray-900">4.8</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Repeat Clients</span>
+                    <span class="font-semibold text-gray-900">75%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Status -->
+    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-info-circle text-carelink-blue mr-2"></i>
+            Profile Status
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex items-center p-4 border rounded-lg {% if provider.is_verified %}border-green-200 bg-green-50{% else %}border-yellow-200 bg-yellow-50{% endif %}">
+                <div class="flex-shrink-0">
+                    {% if provider.is_verified %}
+                        <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                    {% else %}
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium {% if provider.is_verified %}text-green-800{% else %}text-yellow-800{% endif %}">
+                        Profile Verification
+                    </p>
+                    <p class="text-xs {% if provider.is_verified %}text-green-600{% else %}text-yellow-600{% endif %}">
+                        {% if provider.is_verified %}Verified{% else %}Pending verification{% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center p-4 border rounded-lg {% if provider.background_check_date %}border-green-200 bg-green-50{% else %}border-red-200 bg-red-50{% endif %}">
+                <div class="flex-shrink-0">
+                    {% if provider.background_check_date %}
+                        <i class="fas fa-shield-alt text-green-500 text-xl"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium {% if provider.background_check_date %}text-green-800{% else %}text-red-800{% endif %}">
+                        Background Check
+                    </p>
+                    <p class="text-xs {% if provider.background_check_date %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if provider.background_check_date %}Completed{% else %}Required{% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center p-4 border rounded-lg {% if provider.insurance_expiry %}border-green-200 bg-green-50{% else %}border-red-200 bg-red-50{% endif %}">
+                <div class="flex-shrink-0">
+                    {% if provider.insurance_expiry %}
+                        <i class="fas fa-file-contract text-green-500 text-xl"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle text-red-500 text-xl"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium {% if provider.insurance_expiry %}text-green-800{% else %}text-red-800{% endif %}">
+                        Insurance
+                    </p>
+                    <p class="text-xs {% if provider.insurance_expiry %}text-green-600{% else %}text-red-600{% endif %}">
+                        {% if provider.insurance_expiry %}Valid{% else %}Required{% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {% if not provider.is_fully_verified %}
+            <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div class="flex">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 mr-3 mt-1"></i>
+                    <div>
+                        <h4 class="text-sm font-medium text-yellow-800">Complete Your Profile</h4>
+                        <p class="text-sm text-yellow-700 mt-1">
+                            Complete all verification steps to increase your visibility and attract more clients.
+                        </p>
+                        <a href="{% url 'profile_edit' %}" class="inline-block mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-900">
+                            Update Profile <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Service - CareLink{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Progress Steps -->
+    <div class="mb-8">
+        <div class="flex items-center justify-center">
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-8 h-8 bg-carelink-blue text-white rounded-full text-sm font-semibold">1</div>
+                <div class="w-16 h-1 bg-carelink-blue mx-2"></div>
+            </div>
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-8 h-8 bg-carelink-blue text-white rounded-full text-sm font-semibold">2</div>
+                <div class="w-16 h-1 bg-gray-300 mx-2"></div>
+            </div>
+            <div class="flex items-center">
+                <div class="flex items-center justify-center w-8 h-8 bg-gray-300 text-gray-600 rounded-full text-sm font-semibold">3</div>
+            </div>
+        </div>
+        <div class="flex justify-center mt-4">
+            <div class="text-center">
+                <div class="text-sm font-medium text-carelink-blue">Select Service</div>
+                <div class="text-xs text-gray-500">Choose your service and time</div>
+            </div>
+            <div class="text-center ml-16">
+                <div class="text-sm font-medium text-gray-500">Review Details</div>
+                <div class="text-xs text-gray-500">Confirm your booking</div>
+            </div>
+            <div class="text-center ml-16">
+                <div class="text-sm font-medium text-gray-500">Confirmation</div>
+                <div class="text-xs text-gray-500">Booking confirmed</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Provider Info -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex items-center space-x-4">
+            {% if provider.user.profile_picture %}
+                <img src="{{ provider.user.profile_picture.url }}" alt="{{ provider.user.get_full_name }}"
+                     class="w-16 h-16 rounded-full object-cover">
+            {% else %}
+                <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-gray-400 text-xl"></i>
+                </div>
+            {% endif %}
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">
+                    {{ provider.user.get_full_name|default:provider.user.username }}
+                </h2>
+                <p class="text-gray-600">${{ provider.hourly_rate }}/hour</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <form method="post" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Step 1: Service Selection -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-briefcase text-carelink-blue mr-2"></i>Select Service
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {% for service in services %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-carelink-blue transition duration-200">
+                        <label class="flex items-start space-x-3 cursor-pointer">
+                            <input type="radio" name="service" value="{{ service.id }}" 
+                                   class="mt-1 text-carelink-blue focus:ring-carelink-blue">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900">{{ service.name }}</h4>
+                                <p class="text-gray-600 text-sm mt-1">{{ service.description|truncatewords:20 }}</p>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <span class="text-carelink-blue font-semibold">${{ service.price_per_hour }}/hour</span>
+                                    <span class="text-green-600 text-sm">
+                                        <i class="fas fa-check-circle mr-1"></i>Available
+                                    </span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                {% empty %}
+                    <div class="col-span-2 text-center py-8 text-gray-500">
+                        <i class="fas fa-briefcase text-4xl mb-4"></i>
+                        <p>No services available</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Step 2: Date and Time Selection -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-calendar text-carelink-green mr-2"></i>Select Date & Time
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Date Selection -->
+                <div>
+                    <label for="booking_date" class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <input type="date" id="booking_date" name="booking_date" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue"
+                           min="{{ 'now'|date:'Y-m-d' }}">
+                </div>
+
+                <!-- Time Selection -->
+                <div>
+                    <label for="start_time" class="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+                    <select id="start_time" name="start_time" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue">
+                        <option value="">Select time</option>
+                        {% for slot in available_slots %}
+                            <option value="{{ slot }}">{{ slot }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Duration Selection -->
+            <div class="mt-6">
+                <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center justify-center p-3 border border-gray-300 rounded-md hover:border-carelink-blue cursor-pointer">
+                        <input type="radio" name="duration" value="1" class="mr-2 text-carelink-blue focus:ring-carelink-blue">
+                        <span>1 hour</span>
+                    </label>
+                    <label class="flex items-center justify-center p-3 border border-gray-300 rounded-md hover:border-carelink-blue cursor-pointer">
+                        <input type="radio" name="duration" value="2" class="mr-2 text-carelink-blue focus:ring-carelink-blue">
+                        <span>2 hours</span>
+                    </label>
+                    <label class="flex items-center justify-center p-3 border border-gray-300 rounded-md hover:border-carelink-blue cursor-pointer">
+                        <input type="radio" name="duration" value="3" class="mr-2 text-carelink-blue focus:ring-carelink-blue">
+                        <span>3 hours</span>
+                    </label>
+                    <label class="flex items-center justify-center p-3 border border-gray-300 rounded-md hover:border-carelink-blue cursor-pointer">
+                        <input type="radio" name="duration" value="4" class="mr-2 text-carelink-blue focus:ring-carelink-blue">
+                        <span>4 hours</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Special Requests -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-sticky-note text-carelink-orange mr-2"></i>Special Requests (Optional)
+            </h3>
+            
+            <textarea name="special_requests" rows="4" 
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue"
+                      placeholder="Any special instructions, dietary requirements, or other requests..."></textarea>
+        </div>
+
+        <!-- Cost Summary -->
+        <div class="bg-gray-50 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Booking Summary</h3>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Service:</span>
+                    <span id="service_name" class="font-medium">Select a service</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Date & Time:</span>
+                    <span id="datetime_display" class="font-medium">Select date and time</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Duration:</span>
+                    <span id="duration_display" class="font-medium">Select duration</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Hourly Rate:</span>
+                    <span id="hourly_rate" class="font-medium">$0</span>
+                </div>
+                <hr class="my-3">
+                <div class="flex justify-between text-lg">
+                    <span class="font-semibold text-gray-900">Total Cost:</span>
+                    <span id="total_cost" class="font-bold text-carelink-blue">$0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between">
+            <a href="{% url 'provider_profile' provider.id %}" 
+               class="bg-gray-100 text-gray-700 px-6 py-3 rounded-md hover:bg-gray-200 transition duration-300">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Profile
+            </a>
+            
+            <button type="submit" 
+                    class="bg-carelink-blue text-white px-8 py-3 rounded-md hover:bg-blue-700 transition duration-300 font-semibold">
+                <i class="fas fa-calendar-check mr-2"></i>Confirm Booking
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const serviceRadios = document.querySelectorAll('input[name="service"]');
+    const bookingDate = document.getElementById('booking_date');
+    const startTime = document.getElementById('start_time');
+    const durationRadios = document.querySelectorAll('input[name="duration"]');
+    
+    const serviceNameSpan = document.getElementById('service_name');
+    const datetimeDisplay = document.getElementById('datetime_display');
+    const durationDisplay = document.getElementById('duration_display');
+    const hourlyRateSpan = document.getElementById('hourly_rate');
+    const totalCostSpan = document.getElementById('total_cost');
+
+    // Update service selection
+    serviceRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                const serviceCard = this.closest('.border');
+                const serviceTitle = serviceCard.querySelector('h4').textContent;
+                const servicePrice = serviceCard.querySelector('.text-carelink-blue').textContent;
+                
+                serviceNameSpan.textContent = serviceTitle;
+                hourlyRateSpan.textContent = servicePrice;
+                updateTotalCost();
+            }
+        });
+    });
+
+    // Update date and time display
+    function updateDateTime() {
+        const date = bookingDate.value;
+        const time = startTime.value;
+        
+        if (date && time) {
+            const dateObj = new Date(date);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            datetimeDisplay.textContent = `${formattedDate} at ${time}`;
+        } else {
+            datetimeDisplay.textContent = 'Select date and time';
+        }
+        updateTotalCost();
+    }
+
+    // Update duration display
+    durationRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                const hours = this.value;
+                durationDisplay.textContent = `${hours} hour${hours !== '1' ? 's' : ''}`;
+                updateTotalCost();
+            }
+        });
+    });
+
+    // Update total cost
+    function updateTotalCost() {
+        const selectedService = document.querySelector('input[name="service"]:checked');
+        const selectedDuration = document.querySelector('input[name="duration"]:checked');
+        
+        if (selectedService && selectedDuration) {
+            const serviceCard = selectedService.closest('.border');
+            const priceText = serviceCard.querySelector('.text-carelink-blue').textContent;
+            const hourlyRate = parseFloat(priceText.replace('$', '').replace('/hour', ''));
+            const duration = parseInt(selectedDuration.value);
+            const totalCost = hourlyRate * duration;
+            
+            totalCostSpan.textContent = `$${totalCost.toFixed(2)}`;
+        } else {
+            totalCostSpan.textContent = '$0';
+        }
+    }
+
+    // Event listeners
+    bookingDate.addEventListener('change', updateDateTime);
+    startTime.addEventListener('change', updateDateTime);
+    
+    // Update time slots when date changes
+    bookingDate.addEventListener('change', function() {
+        if (this.value) {
+            // Simulate loading available time slots
+            startTime.innerHTML = '<option value="">Loading available times...</option>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                const slots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
+                startTime.innerHTML = '<option value="">Select time</option>' + 
+                    slots.map(slot => `<option value="${slot}">${slot}</option>`).join('');
+            }, 500);
+        }
+    });
+});
+</script>
+{% endblock %}

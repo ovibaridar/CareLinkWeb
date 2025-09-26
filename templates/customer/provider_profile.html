@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ provider.user.get_full_name|default:provider.user.username }} - CareLink{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'search_providers' %}" class="text-carelink-blue hover:text-blue-700 font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Search
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Provider Info -->
+        <div class="lg:col-span-2">
+            <!-- Header -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex items-start space-x-6">
+                    <!-- Profile Picture -->
+                    <div class="flex-shrink-0">
+                        {% if provider.user.profile_picture %}
+                            <img src="{{ provider.user.profile_picture.url }}" alt="{{ provider.user.get_full_name }}"
+                                 class="w-24 h-24 rounded-full object-cover border-4 border-gray-200">
+                        {% else %}
+                            <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-gray-400 text-3xl"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Provider Details -->
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-2">
+                            <h1 class="text-2xl font-bold text-gray-900">
+                                {{ provider.user.get_full_name|default:provider.user.username }}
+                            </h1>
+                            {% if provider.is_fully_verified %}
+                                <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
+                                    <i class="fas fa-check-circle mr-1"></i>Verified Professional
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="flex items-center mb-4">
+                            <div class="flex items-center text-yellow-500 mr-4">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <span class="ml-2 text-gray-600">(4.8) • 127 reviews</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-6 text-gray-600">
+                            <div class="flex items-center">
+                                <i class="fas fa-dollar-sign text-carelink-blue mr-2"></i>
+                                <span class="text-xl font-bold text-carelink-blue">${{ provider.hourly_rate }}</span>
+                                <span class="text-sm ml-1">/hour</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-gray-500 mr-2"></i>
+                                <span>Available now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bio -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-user text-carelink-blue mr-2"></i>About {{ provider.user.first_name|default:provider.user.username }}
+                </h2>
+                <p class="text-gray-700 leading-relaxed">
+                    {{ provider.bio|default:"No bio available." }}
+                </p>
+            </div>
+
+            <!-- Services Offered -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-briefcase text-carelink-green mr-2"></i>Services Offered
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for service in services %}
+                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition duration-200">
+                            <h3 class="font-semibold text-gray-900 mb-2">{{ service.name }}</h3>
+                            <p class="text-gray-600 text-sm mb-2">{{ service.description|truncatewords:15 }}</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-carelink-blue font-semibold">${{ service.price_per_hour }}/hour</span>
+                                <span class="text-green-600 text-sm">
+                                    <i class="fas fa-check-circle mr-1"></i>Available
+                                </span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="col-span-2 text-center py-8 text-gray-500">
+                            <i class="fas fa-briefcase text-4xl mb-4"></i>
+                            <p>No services listed yet</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-star text-carelink-orange mr-2"></i>Reviews
+                </h2>
+                <div class="space-y-4">
+                    <!-- Sample Review -->
+                    <div class="border-b border-gray-200 pb-4">
+                        <div class="flex items-center mb-2">
+                            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-gray-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900">Sarah M.</h4>
+                                <div class="flex items-center">
+                                    <div class="flex text-yellow-500">
+                                        <i class="fas fa-star text-xs"></i>
+                                        <i class="fas fa-star text-xs"></i>
+                                        <i class="fas fa-star text-xs"></i>
+                                        <i class="fas fa-star text-xs"></i>
+                                        <i class="fas fa-star text-xs"></i>
+                                    </div>
+                                    <span class="text-gray-500 text-sm ml-2">2 days ago</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-700">Excellent care for my children. Very professional and reliable. Highly recommend!</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="#" class="text-carelink-blue hover:text-blue-700 font-medium">
+                            View all 127 reviews <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-calendar-plus text-carelink-blue mr-2"></i>Book a Service
+                </h3>
+
+                <!-- Interactive Calendar -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+                    <input type="date" id="booking_date" name="booking_date" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue"
+                           min="{{ 'now'|date:'Y-m-d' }}">
+                </div>
+
+                <!-- Available Time Slots -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Available Times</label>
+                    <div id="time_slots" class="grid grid-cols-2 gap-2">
+                        <div class="text-center py-2 text-gray-500 text-sm">
+                            Select a date first
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Selection -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Service</label>
+                    <select id="service_select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue">
+                        <option value="">Select a service</option>
+                        {% for service in services %}
+                            <option value="{{ service.id }}" data-price="{{ service.price_per_hour }}">
+                                {{ service.name }} - ${{ service.price_per_hour }}/hour
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Duration -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Duration (hours)</label>
+                    <select id="duration" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue">
+                        <option value="1">1 hour</option>
+                        <option value="2">2 hours</option>
+                        <option value="3">3 hours</option>
+                        <option value="4">4 hours</option>
+                        <option value="6">6 hours</option>
+                        <option value="8">8 hours</option>
+                    </select>
+                </div>
+
+                <!-- Special Requests -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Special Requests (Optional)</label>
+                    <textarea id="special_requests" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-carelink-blue focus:border-carelink-blue"
+                              placeholder="Any special instructions or requests..."></textarea>
+                </div>
+
+                <!-- Cost Summary -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Hourly Rate:</span>
+                        <span id="hourly_rate" class="font-semibold">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-gray-600">Duration:</span>
+                        <span id="duration_display">0 hours</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold text-gray-900">Total:</span>
+                        <span id="total_cost" class="text-xl font-bold text-carelink-blue">$0</span>
+                    </div>
+                </div>
+
+                <!-- Book Button -->
+                <button id="book_now_btn" 
+                        class="w-full bg-carelink-blue text-white py-3 px-4 rounded-md hover:bg-blue-700 transition duration-300 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled>
+                    <i class="fas fa-calendar-check mr-2"></i>Book Now
+                </button>
+
+                <!-- Contact Info -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h4 class="font-medium text-gray-900 mb-3">Contact Information</h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            {{ provider.user.email }}
+                        </div>
+                        {% if provider.user.phone_number %}
+                            <div class="flex items-center">
+                                <i class="fas fa-phone mr-2"></i>
+                                {{ provider.user.phone_number }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingDate = document.getElementById('booking_date');
+    const timeSlots = document.getElementById('time_slots');
+    const serviceSelect = document.getElementById('service_select');
+    const duration = document.getElementById('duration');
+    const specialRequests = document.getElementById('special_requests');
+    const bookNowBtn = document.getElementById('book_now_btn');
+    
+    const hourlyRateSpan = document.getElementById('hourly_rate');
+    const durationDisplay = document.getElementById('duration_display');
+    const totalCostSpan = document.getElementById('total_cost');
+
+    // Update time slots when date changes
+    bookingDate.addEventListener('change', function() {
+        if (this.value) {
+            // Simulate loading available time slots
+            timeSlots.innerHTML = '<div class="col-span-2 text-center py-2 text-gray-500 text-sm">Loading available times...</div>';
+            
+            // Simulate API call
+            setTimeout(() => {
+                const slots = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
+                timeSlots.innerHTML = slots.map(slot => 
+                    `<button type="button" class="time-slot bg-gray-100 hover:bg-carelink-blue hover:text-white text-gray-700 py-2 px-3 rounded-md text-sm transition duration-200" data-time="${slot}">${slot}</button>`
+                ).join('');
+            }, 500);
+        }
+    });
+
+    // Handle time slot selection
+    timeSlots.addEventListener('click', function(e) {
+        if (e.target.classList.contains('time-slot')) {
+            // Remove previous selection
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('bg-carelink-blue', 'text-white');
+                slot.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            // Select current slot
+            e.target.classList.remove('bg-gray-100', 'text-gray-700');
+            e.target.classList.add('bg-carelink-blue', 'text-white');
+            
+            updateBookButton();
+        }
+    });
+
+    // Update cost calculation
+    function updateCost() {
+        const selectedService = serviceSelect.options[serviceSelect.selectedIndex];
+        const hourlyRate = selectedService ? parseFloat(selectedService.dataset.price) : 0;
+        const durationHours = parseInt(duration.value);
+        const totalCost = hourlyRate * durationHours;
+
+        hourlyRateSpan.textContent = `$${hourlyRate}`;
+        durationDisplay.textContent = `${durationHours} hour${durationHours !== 1 ? 's' : ''}`;
+        totalCostSpan.textContent = `$${totalCost.toFixed(2)}`;
+        
+        updateBookButton();
+    }
+
+    // Update book button state
+    function updateBookButton() {
+        const hasDate = bookingDate.value;
+        const hasTime = document.querySelector('.time-slot.bg-carelink-blue');
+        const hasService = serviceSelect.value;
+        
+        bookNowBtn.disabled = !(hasDate && hasTime && hasService);
+    }
+
+    // Event listeners
+    serviceSelect.addEventListener('change', updateCost);
+    duration.addEventListener('change', updateCost);
+
+    // Handle booking form submission
+    bookNowBtn.addEventListener('click', function() {
+        if (!this.disabled) {
+            // Collect form data
+            const formData = {
+                date: bookingDate.value,
+                time: document.querySelector('.time-slot.bg-carelink-blue')?.dataset.time,
+                service: serviceSelect.value,
+                duration: duration.value,
+                special_requests: specialRequests.value
+            };
+            
+            // Here you would typically submit to your booking endpoint
+            alert('Booking request would be submitted with: ' + JSON.stringify(formData, null, 2));
+        }
+    });
+});
+</script>
+{% endblock %}

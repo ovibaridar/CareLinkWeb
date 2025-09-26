@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking History - CareLink{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+            <i class="fas fa-history text-carelink-blue mr-2"></i>
+            Booking History
+        </h1>
+        <p class="text-gray-600">Manage all your client bookings and services</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="bg-white rounded-lg shadow-md mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+                <button class="tab-button active border-carelink-blue text-carelink-blue whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="all">
+                    All Bookings
+                </button>
+                <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="pending">
+                    Pending
+                </button>
+                <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="confirmed">
+                    Confirmed
+                </button>
+                <button class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="completed">
+                    Completed
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div class="space-y-4">
+        {% for booking in bookings %}
+            <div class="booking-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300" 
+                 data-status="{{ booking.status }}">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-3">
+                            <h3 class="text-lg font-semibold text-gray-900">{{ booking.service.name }}</h3>
+                            <span class="ml-3 px-3 py-1 text-sm font-medium rounded-full
+                                {% if booking.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif booking.status == 'confirmed' %}bg-green-100 text-green-800
+                                {% elif booking.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                {% elif booking.status == 'completed' %}bg-gray-100 text-gray-800
+                                {% elif booking.status == 'cancelled' %}bg-red-100 text-red-800
+                                {% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div class="space-y-2">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-user mr-2 text-carelink-blue"></i>
+                                    <span>{{ booking.customer.user.get_full_name|default:booking.customer.user.username }}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-envelope mr-2 text-carelink-green"></i>
+                                    <span>{{ booking.customer.user.email }}</span>
+                                </div>
+                                {% if booking.customer.user.phone_number %}
+                                    <div class="flex items-center text-gray-600">
+                                        <i class="fas fa-phone mr-2 text-carelink-orange"></i>
+                                        <span>{{ booking.customer.user.phone_number }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="space-y-2">
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-calendar mr-2 text-purple-500"></i>
+                                    <span>{{ booking.booking_date|date:"F j, Y" }}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-clock mr-2 text-blue-500"></i>
+                                    <span>{{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span>
+                                </div>
+                                <div class="flex items-center text-gray-600">
+                                    <i class="fas fa-hourglass-half mr-2 text-green-500"></i>
+                                    <span>{{ booking.duration_hours }} hour{{ booking.duration_hours|pluralize }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if booking.special_requests %}
+                            <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Special Requests:</h4>
+                                <p class="text-sm text-gray-600">{{ booking.special_requests }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex flex-col items-end space-y-2">
+                        <div class="text-right">
+                            <p class="text-2xl font-bold text-gray-900">${{ booking.total_cost }}</p>
+                            <p class="text-sm text-gray-500">{{ booking.created_at|date:"M j, Y" }}</p>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            {% if booking.status == 'pending' %}
+                                <button class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition duration-200">
+                                    <i class="fas fa-check mr-1"></i>Accept
+                                </button>
+                                <button class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition duration-200">
+                                    <i class="fas fa-times mr-1"></i>Decline
+                                </button>
+                            {% elif booking.status == 'confirmed' %}
+                                <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition duration-200">
+                                    <i class="fas fa-play mr-1"></i>Start Service
+                                </button>
+                                <button class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600 transition duration-200">
+                                    <i class="fas fa-phone mr-1"></i>Contact Client
+                                </button>
+                            {% elif booking.status == 'in_progress' %}
+                                <button class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 transition duration-200">
+                                    <i class="fas fa-check mr-1"></i>Complete
+                                </button>
+                            {% elif booking.status == 'completed' %}
+                                <button class="bg-carelink-blue text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition duration-200">
+                                    <i class="fas fa-star mr-1"></i>View Review
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-12">
+                <i class="fas fa-calendar-times text-gray-400 text-4xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No bookings found</h3>
+                <p class="text-gray-600 mb-4">Update your profile and availability to start receiving bookings</p>
+                <div class="space-x-4">
+                    <a href="{% url 'profile_edit' %}" class="bg-carelink-blue text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">
+                        <i class="fas fa-user-edit mr-2"></i>Update Profile
+                    </a>
+                    <a href="{% url 'provider_calendar' %}" class="bg-carelink-green text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300">
+                        <i class="fas fa-calendar mr-2"></i>Set Availability
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if bookings|length > 10 %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Previous
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-white bg-carelink-blue border border-carelink-blue rounded-md">
+                    1
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    2
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    3
+                </button>
+                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    Next
+                </button>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const bookingCards = document.querySelectorAll('.booking-card');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const tab = this.dataset.tab;
+            
+            // Update active tab
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'border-carelink-blue', 'text-carelink-blue');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            this.classList.add('active', 'border-carelink-blue', 'text-carelink-blue');
+            this.classList.remove('border-transparent', 'text-gray-500');
+            
+            // Filter booking cards
+            bookingCards.forEach(card => {
+                const status = card.dataset.status;
+                let show = false;
+                
+                switch(tab) {
+                    case 'all':
+                        show = true;
+                        break;
+                    case 'pending':
+                        show = status === 'pending';
+                        break;
+                    case 'confirmed':
+                        show = status === 'confirmed';
+                        break;
+                    case 'completed':
+                        show = status === 'completed';
+                        break;
+                }
+                
+                if (show) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease-in';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+
+// Add fade-in animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
