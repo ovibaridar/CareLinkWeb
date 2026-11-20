@@ -39,7 +39,7 @@ CareLink is a full-stack web application designed to be a digital marketplace co
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/ovibaridar/CareLinkWeb.git
    cd CareLinkWeb
    ```
 
